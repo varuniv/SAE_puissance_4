@@ -1,55 +1,45 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.net.*;
 
 public class Client {
+    private static final String SERVER_ADDRESS = "localhost";  // Adresse du serveur
+    private static final int SERVER_PORT = 8000;  // Port du serveur
+
     public static void main(String[] args) {
-        int portEcouteServeur = 5000;
-        BufferedReader entreeUtilisateur = null;
-        BufferedReader entreeServeur = null;
-        PrintStream sortie = null;
-        Socket socket = null;
+        
+        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+             BufferedReader serverInput = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter serverOutput = new PrintWriter(socket.getOutputStream(), true)) {
 
-        try {
-            socket = new Socket("127.0.0.1", portEcouteServeur);
-            entreeUtilisateur = new BufferedReader(new InputStreamReader(System.in));
-            entreeServeur = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            sortie = new PrintStream(socket.getOutputStream());
+            System.out.println("Connecté au serveur à " + SERVER_ADDRESS + ":" + SERVER_PORT);
 
-            System.out.println("Connexion au serveur sur le port " + portEcouteServeur);
-            System.out.println("(quit pour quitter)");
+            //Vérification de la connexion
+            System.out.println("Serveur: " + serverInput.readLine());
+
+            System.out.println("Entrez votre nom: ");
+            String Nom = userInput.readLine();
+            serverOutput.println(Nom);
 
             String message;
             while (true) {
-                System.out.print("msg : ");
-                message = entreeUtilisateur.readLine();
-                sortie.println(message);
+                // Demander à l'utilisateur d'entrer un message
+                System.out.print("Vous: ");
+                message = userInput.readLine();
 
-                if ("quit".equalsIgnoreCase(message)) {
-                    System.out.println("Fermeture de la connexion...");
+                // Envoyer le message au serveur
+                serverOutput.println(message);
+
+                // Lire la réponse du serveur
+                String response = serverInput.readLine();
+                System.out.println("Serveur: " + response);
+
+                if (message.equalsIgnoreCase("bye")) {
                     break;
                 }
             }
-
-            String reponse = entreeServeur.readLine();
-            System.out.println("Serveur : " + reponse);
-
-        } catch (UnknownHostException e) {
-            System.out.println("Adresse du serveur inconnue.");
         } catch (IOException e) {
-            System.out.println("Erreur de lecture");
-        } finally {
-            try {
-                if (entreeUtilisateur != null) entreeUtilisateur.close();
-                if (entreeServeur != null) entreeServeur.close();
-                if (sortie != null) sortie.close();
-                if (socket != null) socket.close();
-            } catch (IOException e) {
-                System.out.println("Erreur lors de la fermeture des entrees et des sockets");
-            }
+            e.printStackTrace();
         }
     }
 }
