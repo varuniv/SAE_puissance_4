@@ -1,9 +1,11 @@
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
 public class Server {
-    private static final int PORT = 8000;  // Port du serveur
+    private static final int PORT = 7000;  // Port du serveur
     private static final ExecutorService pool = Executors.newFixedThreadPool(2);  // Limiter à 2 clients
 
     public static void main(String[] args) {
@@ -46,6 +48,8 @@ class Service implements Runnable {
 
                 if (this.nom == null) {
                     this.nom = message;
+                    String type = "joueur";
+                    sendInfoToController(this.nom, message, "commande");
                     continue;
                 }
 
@@ -55,11 +59,29 @@ class Service implements Runnable {
                 writer.println("Serveur : " + message);
 
                 if (message.equalsIgnoreCase("fin")) {
+                    sendInfoToController(this.nom, message, "commande");
                     break;
+                } else {
+                    sendInfoToController(this.nom, message, "message");
                 }
             }
 
             System.out.println("Client déconnecté : " + clientSocket.getRemoteSocketAddress());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendInfoToController(String nom, String message, String type) {
+        try {
+            Socket socket = new Socket("localhost", 12345); // Assurez-vous que le port correspond à celui utilisé par controleur.java
+            OutputStream outputStream = socket.getOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+            objectOutputStream.writeObject(nom);
+            objectOutputStream.writeObject(message);
+            objectOutputStream.writeObject(type);
+            objectOutputStream.close();
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

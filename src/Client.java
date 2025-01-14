@@ -3,7 +3,7 @@ import java.net.*;
 
 public class Client {
     private static final String SERVER_ADDRESS = "localhost";  // Adresse du serveur
-    private static final int SERVER_PORT = 8000;  // Port du serveur
+    private static final int SERVER_PORT = 7000;  // Port du serveur
 
     public static void main(String[] args) {
         
