@@ -51,7 +51,7 @@ public class Server {
     }
 
     public static String decline(Socket joueur1Soc, String joueur2Name) throws IOException{
-        if(joueurs.containsValue(joueur2Name) || joueur2Name.isBlank()){
+        if(!joueurs.containsValue(joueur2Name) || joueur2Name.isBlank()){
             return "ERR Aucun joueur ne porte ce nom";
         }
         Socket joueur2Soc = getKeyByValue(joueurs, joueur2Name);
@@ -59,6 +59,13 @@ public class Server {
         sendToPlayer(joueur2Soc, "Votre invitation à " + joueur1Name + " a été refusée");
         invites.remove(joueur1Name);
         return "Invitation refusée";
+    }
+
+    public static String players(Socket joueurSoc) throws IOException {
+        for (String key : joueurs.values()) {
+            sendToPlayer(joueurSoc, key);
+        }
+        return "Liste des joueurs envoyée";
     }
 
     //JoueurAcc = Joueur acceptant
@@ -73,6 +80,20 @@ public class Server {
             return "Invitation accepté avec succès";
         }
         return "ERR Vous n'avez aucune invitation de " + joueurInvName ;
+    }
+
+    public static String play(Socket joueur1Soc) throws InterruptedException{
+        Puissance4 p4 = new Puissance4();
+        String joueur1Nom = joueurs.get(joueur1Soc);
+        String joueur2Nom = invites.get(joueur1Nom);
+        Socket joueur2Soc = getKeyByValue(joueurs, joueur2Nom);
+        Jeu jeu = new Jeu(joueur1Soc, joueur1Nom, joueur2Soc, joueur2Nom, p4);
+        jeu.run();
+        while(jeu.enCours()){
+            TimeUnit.SECONDS.sleep(10);
+        }
+        return "Partie terminée";
+
     }
 
     public static String sendToPlayer(Socket joueurSocket, String message) throws IOException {

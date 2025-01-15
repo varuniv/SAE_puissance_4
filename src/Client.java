@@ -5,7 +5,7 @@ public class Client {
     private static final String SERVER_ADDRESS = "localhost";  // Adresse du serveur
     private static final int SERVER_PORT = 7000;  // Port du serveur
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         
         try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
              BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
@@ -15,9 +15,13 @@ public class Client {
             System.out.println("Connecté au serveur à " + SERVER_ADDRESS + ":" + SERVER_PORT);
 
             Send send = new Send(serverOutput, userInput);
-            Receive receive = new Receive(serverInput, serverOutput, userInput);
+            Receive receive = new Receive(serverInput);
             send.start();
             receive.start();
+            send.join();
+            receive.join();
+            System.out.println("Déconnecté du serveur");
+
 
         } catch (IOException e) {
             e.printStackTrace();

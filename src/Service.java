@@ -27,19 +27,41 @@ public class Service implements Runnable {
                     try {
                         String[] inputs = message.split(" ");
                         String commande = inputs[0];
-                        String arg = inputs[1];
+                        String arg = inputs.length > 1 ? inputs[1] : "";
                         switch(commande){
                             case "name": 
-                                writer.println(Server.name(clientSocket, arg));
+                                if (!arg.isEmpty()) {
+                                    writer.println(Server.name(clientSocket, arg));
+                                } else {
+                                    writer.println("Argument manquant pour la commande 'name'");
+                                }
                                 break;
                             case "invite": 
-                                writer.println(Server.invite(clientSocket, arg)); 
+                                if (!arg.isEmpty()) {
+                                    writer.println(Server.invite(clientSocket, arg)); 
+                                } else {
+                                    writer.println("Argument manquant pour la commande 'invite'");
+                                }
                                 break;
                             case "accept": 
-                                writer.println(Server.accept(clientSocket, arg)); 
+                                if (!arg.isEmpty()) {
+                                    writer.println(Server.accept(clientSocket, arg)); 
+                                } else {
+                                    writer.println("Argument manquant pour la commande 'accept'");
+                                }
                                 break;
                             case "decline": 
-                                writer.println(Server.decline(clientSocket, arg)); 
+                                if (!arg.isEmpty()) {
+                                    writer.println(Server.decline(clientSocket, arg)); 
+                                } else {
+                                    writer.println("Argument manquant pour la commande 'decline'");
+                                }
+                                break;
+                            case "play": 
+                                writer.println(Server.play(clientSocket)); 
+                                break;
+                            case "players":
+                                writer.println(Server.players(clientSocket));
                                 break;
                             default: 
                                 writer.println("Commande invalide");
