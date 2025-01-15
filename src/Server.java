@@ -29,11 +29,11 @@ public class Server {
     }
 
     public static String name(Socket socket, String nom) throws IOException{
-        if(joueurs.containsValue(nom) || nom.isBlank()){
-            return "ERR Nom de joueur invalide ou déjà pris";
-        }
         if(joueurs.containsKey(socket)){
             return "ERR Vous êtes déjà identifié";
+        }
+        if(joueurs.containsValue(nom) || nom.isBlank()){
+            return "ERR Nom de joueur invalide ou déjà pris";
         }
         joueurs.put(socket, nom);
         return "Joueur ajouté";
