@@ -19,9 +19,6 @@ public class Jeu implements Runnable {
         }
     }
 
-
-
-
     private void handleCommand(String nom, String message) {
         // Traitez la commande
         if(message.equals("fin")){
