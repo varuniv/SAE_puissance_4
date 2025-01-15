@@ -51,7 +51,7 @@ public class Server {
     }
 
     public static String decline(Socket joueur1Soc, String joueur2Name) throws IOException{
-        if(joueurs.containsValue(joueur2Name) || joueur2Name.isBlank()){
+        if(!joueurs.containsValue(joueur2Name) || joueur2Name.isBlank()){
             return "ERR Aucun joueur ne porte ce nom";
         }
         Socket joueur2Soc = getKeyByValue(joueurs, joueur2Name);

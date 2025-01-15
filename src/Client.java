@@ -15,9 +15,14 @@ public class Client {
             System.out.println("Connecté au serveur à " + SERVER_ADDRESS + ":" + SERVER_PORT);
 
             Send send = new Send(serverOutput, userInput);
-            Receive receive = new Receive(serverInput, serverOutput, userInput);
+            Receive receive = new Receive(serverInput);
             send.start();
             receive.start();
+            while(send.isAlive() && receive.isAlive()) {
+                // Attendre que les threads se terminent
+            }
+            System.out.println("Déconnecté du serveur");
+
 
         } catch (IOException e) {
             e.printStackTrace();

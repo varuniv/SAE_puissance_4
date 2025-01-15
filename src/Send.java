@@ -14,7 +14,6 @@ public class Send extends Thread {
         try {
             String commande;
             while (true) {
-                System.out.print("Vous:");
                 commande = userInput.readLine();
                 out.println(commande);
             }
