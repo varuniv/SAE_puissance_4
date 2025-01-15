@@ -14,23 +14,11 @@ public class Client {
 
             System.out.println("Connecté au serveur à " + SERVER_ADDRESS + ":" + SERVER_PORT);
 
-            String message;
-            while (true) {
-                // Demander à l'utilisateur d'entrer un message
-                System.out.print("Vous: ");
-                message = userInput.readLine();
+            Send send = new Send(serverOutput, userInput);
+            Receive receive = new Receive(serverInput, serverOutput, userInput);
+            send.start();
+            receive.start();
 
-                // Envoyer le message au serveur
-                serverOutput.println(message);
-
-                // Lire la réponse du serveur
-                String response = serverInput.readLine();
-                if (response == null) {
-                    System.out.println("Le serveur a fermé la connexion.");
-                    break;
-                }
-                System.out.println("Serveur: " + response);
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -81,12 +81,12 @@ public class Server {
             OutputStreamWriter osw = new OutputStreamWriter(os);
             BufferedWriter bw = new BufferedWriter(osw);
             bw.write(message);
-            bw.newLine(); // Ensure the message is properly terminated
-            bw.flush(); // Ensure the message is sent
+            bw.newLine();
+            bw.flush();
         } catch (IOException e) {
-            System.err.println("Error sending message to player: " + e.getMessage());
+            System.err.println("Erreur dans l'envoi du message : " + e.getMessage());
             e.printStackTrace();
-            throw e; // Rethrow the exception if needed
+            throw e;
         }
         return "Message sent";
     }
