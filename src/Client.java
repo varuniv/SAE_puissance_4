@@ -14,13 +14,6 @@ public class Client {
 
             System.out.println("Connecté au serveur à " + SERVER_ADDRESS + ":" + SERVER_PORT);
 
-            //Vérification de la connexion
-            System.out.println("Serveur: " + serverInput.readLine());
-
-            System.out.println("Entrez votre nom: ");
-            String Nom = userInput.readLine();
-            serverOutput.println(Nom);
-
             String message;
             while (true) {
                 // Demander à l'utilisateur d'entrer un message

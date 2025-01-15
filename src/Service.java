@@ -25,9 +25,15 @@ public class Service implements Runnable {
                     String arg = inputs[1];
 
                     switch(commande){
-                        case "name": Server.name(clientSocket, arg); break;
-                        case "invite": Server.invite(clientSocket, arg); break;
-                        case "accept": Server.accept(clientSocket, arg); break;
+                        case "name": 
+                            writer.println(Server.name(clientSocket, arg));
+                            break;
+                        case "invite": 
+                            writer.println(Server.invite(clientSocket, arg)); 
+                            break;
+                        case "accept": 
+                            writer.println(Server.accept(clientSocket, arg)); 
+                            break;
                     }
 
                 }
