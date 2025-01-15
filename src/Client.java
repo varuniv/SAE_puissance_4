@@ -5,7 +5,7 @@ public class Client {
     private static final String SERVER_ADDRESS = "localhost";  // Adresse du serveur
     private static final int SERVER_PORT = 7000;  // Port du serveur
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         
         try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
              BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
@@ -18,9 +18,8 @@ public class Client {
             Receive receive = new Receive(serverInput);
             send.start();
             receive.start();
-            while(send.isAlive() && receive.isAlive()) {
-                // Attendre que les threads se terminent
-            }
+            send.join();
+            receive.join();
             System.out.println("Déconnecté du serveur");
 
 

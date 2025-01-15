@@ -15,6 +15,9 @@ public class Send extends Thread {
             String commande;
             while (true) {
                 commande = userInput.readLine();
+                if(commande == "quit"){
+                    break;
+                }
                 out.println(commande);
             }
         } catch (IOException e) {

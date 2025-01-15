@@ -27,4 +27,8 @@ public class Jeu implements Runnable {
         }
     }
 
+    public boolean enCours(){
+        return this.enCours;
+    }
+
 }
