@@ -34,6 +34,9 @@ public class Service implements Runnable {
                         case "accept": 
                             writer.println(Server.accept(clientSocket, arg)); 
                             break;
+                        case "decline": 
+                            writer.println(Server.decline(clientSocket, arg)); 
+                            break;
                     }
 
                 }

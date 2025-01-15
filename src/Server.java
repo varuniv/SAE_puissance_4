@@ -52,6 +52,17 @@ public class Server {
         return "Demande envoyé";
     }
 
+    public static String decline(Socket joueur1Soc, String joueur2Name) throws IOException{
+        if(joueurs.containsValue(joueur2Name) || joueur2Name.isBlank()){
+            return "ERR Aucun joueur ne porte ce nom";
+        }
+        Socket joueur2Soc = getKeyByValue(joueurs, joueur2Name);
+        String joueur1Name = joueurs.get(joueur1Soc);
+        sendToPlayer(joueur2Soc, "Votre invitation à " + joueur1Name + " a été refusée");
+        invites.remove(joueur1Name);
+        return "Invitation refusée";
+    }
+
     //JoueurAcc = Joueur acceptant
     //JoueurInv = Joueur invitant
     public static String accept(Socket joueurAccSoc, String joueurInvName ) throws IOException{
