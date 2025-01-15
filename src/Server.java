@@ -39,17 +39,15 @@ public class Server {
         return "Joueur ajouté";
     }
 
-    public static String invite(Socket joueur1Soc, String joueur2Name) throws IOException{
-        if(joueurs.containsValue(joueur2Name) || joueur2Name.isBlank()){
+    public static String invite(Socket joueur1Soc, String joueur2Name) throws IOException {
+        if (!joueurs.containsValue(joueur2Name) || joueur2Name.isBlank()) {
             return "ERR Aucun joueur ne porte ce nom";
         }
         Socket joueur2Soc = getKeyByValue(joueurs, joueur2Name);
         String joueur1Name = joueurs.get(joueur1Soc);
         sendToPlayer(joueur2Soc, "Vous avez reçu une invitation de " + joueur1Name);
         invites.put(joueur1Name, joueur2Name);
-
-        
-        return "Demande envoyé";
+        return "Demande envoyée";
     }
 
     public static String decline(Socket joueur1Soc, String joueur2Name) throws IOException{
@@ -77,13 +75,20 @@ public class Server {
         return "ERR Vous n'avez aucune invitation de " + joueurInvName ;
     }
 
-    public static String sendToPlayer(Socket joueurSocket, String message) throws IOException{
-        OutputStream os = joueurSocket.getOutputStream();
-        OutputStreamWriter osw = new OutputStreamWriter(os);
-        BufferedWriter bw = new BufferedWriter(osw);
-        bw.write(message);
-        bw.flush();
-        return "Message envoyé au client";
+    public static String sendToPlayer(Socket joueurSocket, String message) throws IOException {
+        try {
+            OutputStream os = joueurSocket.getOutputStream();
+            OutputStreamWriter osw = new OutputStreamWriter(os);
+            BufferedWriter bw = new BufferedWriter(osw);
+            bw.write(message);
+            bw.newLine(); // Ensure the message is properly terminated
+            bw.flush(); // Ensure the message is sent
+        } catch (IOException e) {
+            System.err.println("Error sending message to player: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Rethrow the exception if needed
+        }
+        return "Message sent";
     }
 
     public static Socket getKeyByValue(Map<Socket, String> joueurs2, String joueur1Soc) {
@@ -95,5 +100,3 @@ public class Server {
     return null;
     }
 }
-
-

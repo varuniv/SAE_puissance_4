@@ -37,6 +37,8 @@ public class Service implements Runnable {
                         case "decline": 
                             writer.println(Server.decline(clientSocket, arg)); 
                             break;
+                        default: 
+                            writer.println("Commande invalide");
                     }
 
                 }

@@ -25,11 +25,11 @@ public class Client {
 
                 // Lire la réponse du serveur
                 String response = serverInput.readLine();
-                System.out.println("Serveur: " + response);
-
-                if (message.equalsIgnoreCase("bye")) {
+                if (response == null) {
+                    System.out.println("Le serveur a fermé la connexion.");
                     break;
                 }
+                System.out.println("Serveur: " + response);
             }
         } catch (IOException e) {
             e.printStackTrace();

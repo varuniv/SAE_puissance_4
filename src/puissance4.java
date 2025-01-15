@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class puissance4 {
+public class Puissance4 {
 
     public final static int VIDE = 0;
 	public final static int BLEU = 1;
@@ -11,7 +11,7 @@ public class puissance4 {
     private boolean debut = true;
         
     
-    public puissance4() {
+    public Puissance4() {
         initJeu();
     }
     private void initJeu() {
@@ -171,7 +171,7 @@ public class puissance4 {
     }
 
     public static void main(String[] args) {
-        puissance4 p = new puissance4();
+        Puissance4 p = new Puissance4();
         p.joueCoup(0,1);
         
     }
