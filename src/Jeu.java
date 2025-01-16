@@ -32,7 +32,7 @@ public class Jeu extends Thread {
 
             while (running) {
                 currentOutput.println("C'est votre tour. Entrez une colonne (0-6):");
-                game.printBoard();
+                currentOutput.println(game.getBoardString());
 
                 String move = currentInput.readLine();
                 try {
@@ -42,38 +42,33 @@ public class Jeu extends Thread {
                         continue;
                     }
 
-                    if (game.checkWin()) {
-                        game.printBoard();
-                        currentOutput.println("Félicitations, vous avez gagné !");
-                        (currentSocket == player1 ? output2 : output1).println("Désolé, vous avez perdu.");
-                        break;
+                    // Switch players
+                    if (currentSocket == player1) {
+                        currentSocket = player2;
+                        currentOutput = output2;
+                        currentInput = input2;
+                    } else {
+                        currentSocket = player1;
+                        currentOutput = output1;
+                        currentInput = input1;
                     }
 
-                    if (game.isFull()) {
-                        game.printBoard();
-                        output1.println("Match nul !");
-                        output2.println("Match nul !");
-                        break;
-                    }
-
-                    // Changer de joueur
-                    game.printBoard();
+                    // Display the updated board to both players
                     output1.println(game.getBoardString());
                     output2.println(game.getBoardString());
-                    currentSocket = (currentSocket == player1) ? player2 : player1;
-                    currentOutput = (currentOutput == output1) ? output2 : output1;
-                    currentInput = (currentInput == input1) ? input2 : input1;
 
+                    // Check if the game is over
+                    if (game.isGameOver()) {
+                        running = false;
+                        output1.println("Le jeu est terminé.");
+                        output2.println("Le jeu est terminé.");
+                    }
                 } catch (NumberFormatException e) {
-                    currentOutput.println("Entrée invalide. Entrez un numéro de colonne entre 0 et 6.");
+                    currentOutput.println("Entrée invalide. Entrez un nombre entre 0 et 6.");
                 }
             }
-
-            // Fin de la partie
-            player1.close();
-            player2.close();
         } catch (IOException e) {
-            System.err.println("Erreur pendant la session de jeu : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

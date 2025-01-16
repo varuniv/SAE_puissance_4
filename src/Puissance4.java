@@ -93,4 +93,8 @@ public class Puissance4 {
         }
         return sb.toString();
     }
+
+    public boolean isGameOver() {
+        return checkWin() || isFull();
+    }
 }
