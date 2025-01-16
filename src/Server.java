@@ -47,6 +47,11 @@ public class Server {
         String joueur1Name = joueurs.get(joueur1Soc);
         sendToPlayer(joueur2Soc, "Vous avez reçu une invitation de " + joueur1Name);
         invites.put(joueur1Name, joueur2Name);
+        
+        // Ajoutez des logs pour vérifier l'ajout des invitations
+        System.out.println("Invitation ajoutée: " + joueur1Name + " -> " + joueur2Name);
+        System.out.println("Invitations actuelles: " + invites);
+        
         return "Demande envoyée";
     }
 
@@ -70,16 +75,21 @@ public class Server {
 
     //JoueurAcc = Joueur acceptant
     //JoueurInv = Joueur invitant
-    public static String accept(Socket joueurAccSoc, String joueurInvName ) throws IOException{
+    public static String accept(Socket joueurAccSoc, String joueurInvName) throws IOException {
         String joueurAccName = joueurs.get(joueurAccSoc);
         Socket joueurInvSoc = getKeyByValue(joueurs, joueurInvName);
-        if(invites.containsKey(joueurInvName) && invites.get(joueurInvName) == joueurAccName){
+        
+        // Ajoutez des logs pour vérifier l'état des invitations
+        System.out.println("Tentative d'acceptation de l'invitation de " + joueurInvName + " par " + joueurAccName);
+        System.out.println("Invitations actuelles: " + invites);
+
+        if (invites.containsKey(joueurInvName) && invites.get(joueurInvName).equals(joueurAccName)) {
             parties.put(joueurInvName, joueurAccName);
             invites.remove(joueurInvName);
-            sendToPlayer(joueurInvSoc, "Votre invitation à " +joueurAccName+" a été acceptée");
-            return "Invitation accepté avec succès";
+            sendToPlayer(joueurInvSoc, "Votre invitation à " + joueurAccName + " a été acceptée");
+            return "Invitation acceptée avec succès";
         }
-        return "ERR Vous n'avez aucune invitation de " + joueurInvName ;
+        return "ERR Vous n'avez aucune invitation de " + joueurInvName;
     }
 
     public static String play(Socket joueur1Soc) throws InterruptedException{
@@ -88,10 +98,12 @@ public class Server {
         String joueur2Nom = invites.get(joueur1Nom);
         Socket joueur2Soc = getKeyByValue(joueurs, joueur2Nom);
         Jeu jeu = new Jeu(joueur1Soc, joueur1Nom, joueur2Soc, joueur2Nom, p4);
-        jeu.run();
-        while(jeu.enCours()){
-            TimeUnit.SECONDS.sleep(10);
-        }
+        Thread jeuThread = new Thread(jeu);
+        invites.remove(joueur1Nom);
+        parties.put(joueur1Nom, joueur2Nom);
+        jeuThread.start();
+        jeuThread.join();
+
         return "Partie terminée";
 
     }

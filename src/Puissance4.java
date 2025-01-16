@@ -165,15 +165,29 @@ public class Puissance4 {
                     }
               }
         }
-    
         return true;
-      
     }
 
-    public static void main(String[] args) {
-        Puissance4 p = new Puissance4();
-        p.joueCoup(0,1);
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        for (int row = nbrow - 1; row >= 0; row--) {
+            for (int col = 0; col < nbcol; col++) {
+                sb.append("[").append(grille[col][row]).append("]");
+            }
+            sb.append("\n");
+        }
+        sb.append("\n");
+        sb.append(" 0  1  2  3  4  5  6\n");
         
+        return sb.toString();
+    }
+
+    public int getNombreColonnes() {
+        return nbcol;
+    }
+
+    public int getNombreLignes() {
+        return nbrow;
     }
 }
 
