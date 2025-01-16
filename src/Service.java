@@ -15,6 +15,8 @@ public class Service implements Runnable {
     public void run() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
              PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true)) {
+                writer.println("Entrer votre nom avec la commande 'name' suivi de votre nom \n");
+                writer.println("Pour avoir la liste des commandes entrer help \n");
                 while(true){
                     String message = reader.readLine(); 
                     if(message.isBlank() || message.isEmpty()){
@@ -59,6 +61,16 @@ public class Service implements Runnable {
                                 break;
                             case "players":
                                 writer.println(Server.players(clientSocket));
+                                break;
+                            case "help":
+                                String lesCommandes = "Voici la liste des commandes :\n";
+                                lesCommandes += "-name [votreNom] : vous entregistre en tant que jouer \n";
+                                lesCommandes += "-invite [nomJoueur] : inviter un joueur connecté \n";
+                                lesCommandes += "-accept [nomInvité] : accepter l'invitation d'un joueur \n";
+                                lesCommandes += "-decline [nomInvité] : refuse un invitation de jeu \n";
+                                lesCommandes += "-play : lancer la partie \n";
+                                lesCommandes += "-player : affiche les joueurs disponible \n";
+                                writer.println(lesCommandes);
                                 break;
                             default: 
                                 writer.println("Commande invalide");
