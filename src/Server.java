@@ -92,20 +92,31 @@ public class Server {
         return "ERR Vous n'avez aucune invitation de " + joueurInvName;
     }
 
-    public static String play(Socket joueur1Soc) throws InterruptedException{
-        Puissance4 p4 = new Puissance4();
+    public static String play(Socket joueur1Soc) throws InterruptedException, IOException {
         String joueur1Nom = joueurs.get(joueur1Soc);
-        String joueur2Nom = invites.get(joueur1Nom);
+        String joueur2Nom = parties.get(joueur1Nom);
+    
+        // Debugging statements
+        System.out.println("joueur1Nom: " + joueur1Nom);
+        System.out.println("invites: " + parties);
+        System.out.println("joueur2Nom: " + joueur2Nom);
+    
+        if (joueur2Nom == null) {
+            return "ERR Vous n'avez aucune invitation en attente.";
+        }
+    
         Socket joueur2Soc = getKeyByValue(joueurs, joueur2Nom);
-        Jeu jeu = new Jeu(joueur1Soc, joueur1Nom, joueur2Soc, joueur2Nom, p4);
-        Thread jeuThread = new Thread(jeu);
-        invites.remove(joueur1Nom);
-        parties.put(joueur1Nom, joueur2Nom);
-        jeuThread.start();
-        jeuThread.join();
-
-        return "Partie terminée";
-
+    
+        if (joueur2Soc == null) {
+            return "ERR Le joueur " + joueur2Nom + " n'est pas connecté.";
+        }
+    
+        Jeu jeu = new Jeu(joueur1Soc, joueur2Soc);
+        jeu.start();
+        jeu.join();
+        parties.remove(joueur1Nom);
+    
+        return "La partie est terminée.";
     }
 
     public static String sendToPlayer(Socket joueurSocket, String message) throws IOException {

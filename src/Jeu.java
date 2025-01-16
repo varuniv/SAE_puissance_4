@@ -1,92 +1,79 @@
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.*;
 
-public class Jeu implements Runnable {
-    private String joueurLeader;
-    private String joueurSuivant;
-    private Map<Socket, String> joueurs = new HashMap<>();
-    private Puissance4 p4;
-    private boolean enCours;
+public class Jeu extends Thread {
+    private final Socket player1;
+    private final Socket player2;
+    private final BufferedReader input1;
+    private final PrintWriter output1;
+    private final BufferedReader input2;
+    private final PrintWriter output2;
 
-    public Jeu (Socket j1s, String j1n, Socket j2s, String j2n, Puissance4 p4){
-        this.p4 = p4;
-        this.joueurs.put(j1s, j1n);
-        this.joueurs.put(j2s, j2n);
-        this.enCours = true;
-        this.joueurLeader = j1n;
-        this.joueurSuivant = j2n;
-        }
-    
-        private String getGrilleRepresentation() {
-            return p4.toString(); 
-        }
-
-    public void run() {
-        try {
-            while (enCours) {
-                Socket joueurLeaderSocket = getKeyByValue(joueurs, joueurLeader);
-
-                if (joueurLeaderSocket == null) {
-                    System.out.println("ERR Impossible d'identifier le joueur leader.");
-                    System.out.println("Joueur leader: " + joueurLeader);
-                    System.out.println("Joueurs: " + joueurs);
-                    break;
-                }
-
-                Server.sendToPlayer(joueurLeaderSocket, "C'est votre tour. Entrez une colonne (0-6) :");
-
-                InputStream is = joueurLeaderSocket.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                int colonneChoisie;
-                try {
-                    colonneChoisie = Integer.parseInt(br.readLine());
-                } catch (NumberFormatException | IOException e) {
-                    Server.sendToPlayer(joueurLeaderSocket, "ERR Entrée invalide, réessayez.");
-                    continue; 
-                }
-
-                if (colonneChoisie < 0 || colonneChoisie >= p4.getNombreColonnes()) {
-                    Server.sendToPlayer(joueurLeaderSocket, "Colonne invalide, réessayez.");
-                    continue; 
-                }
-
-                boolean coupValide = p4.joueCoup(colonneChoisie, joueurLeader.equals(joueurs.values().toArray()[0]) ? Puissance4.BLEU : Puissance4.ROUGE);
-                if (!coupValide) {
-                    Server.sendToPlayer(joueurLeaderSocket, "Coup invalide, réessayez.");
-                    continue;
-                }
-
-                String grille = getGrilleRepresentation();
-                for (Socket joueurSocket : joueurs.keySet()) {
-                    Server.sendToPlayer(joueurSocket, "Grille actuelle:\n" + grille);
-                }
-
-                String temp = joueurLeader;
-                joueurLeader = joueurSuivant;
-                joueurSuivant = temp;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Jeu(Socket player1, Socket player2) throws IOException {
+        this.player1 = player1;
+        this.player2 = player2;
+        this.input1 = new BufferedReader(new InputStreamReader(player1.getInputStream()));
+        this.output1 = new PrintWriter(player1.getOutputStream(), true);
+        this.input2 = new BufferedReader(new InputStreamReader(player2.getInputStream()));
+        this.output2 = new PrintWriter(player2.getOutputStream(), true);
     }
 
-    private Socket getKeyByValue(Map<Socket, String> map, String value) {
-        for (Entry<Socket, String> entry : map.entrySet()) {
-            if (Objects.equals(value, entry.getValue())) {
-                return entry.getKey();
+    @Override
+    public void run() {
+        try {
+            Puissance4 game = new Puissance4();
+            boolean running = true;
+            Socket currentSocket = player1;
+            PrintWriter currentOutput = output1;
+            BufferedReader currentInput = input1;
+
+            output1.println("Vous êtes le joueur Rouge (R). Attendez votre tour.");
+            output2.println("Vous êtes le joueur Jaune (Y). Attendez votre tour.");
+
+            while (running) {
+                currentOutput.println("C'est votre tour. Entrez une colonne (0-6):");
+                game.printBoard();
+
+                String move = currentInput.readLine();
+                try {
+                    int col = Integer.parseInt(move);
+                    if (!game.makeMove(col)) {
+                        currentOutput.println("Mouvement invalide. Essayez à nouveau.");
+                        continue;
+                    }
+
+                    if (game.checkWin()) {
+                        game.printBoard();
+                        currentOutput.println("Félicitations, vous avez gagné !");
+                        (currentSocket == player1 ? output2 : output1).println("Désolé, vous avez perdu.");
+                        break;
+                    }
+
+                    if (game.isFull()) {
+                        game.printBoard();
+                        output1.println("Match nul !");
+                        output2.println("Match nul !");
+                        break;
+                    }
+
+                    // Changer de joueur
+                    game.printBoard();
+                    output1.println(game.getBoardString());
+                    output2.println(game.getBoardString());
+                    currentSocket = (currentSocket == player1) ? player2 : player1;
+                    currentOutput = (currentOutput == output1) ? output2 : output1;
+                    currentInput = (currentInput == input1) ? input2 : input1;
+
+                } catch (NumberFormatException e) {
+                    currentOutput.println("Entrée invalide. Entrez un numéro de colonne entre 0 et 6.");
+                }
             }
+
+            // Fin de la partie
+            player1.close();
+            player2.close();
+        } catch (IOException e) {
+            System.err.println("Erreur pendant la session de jeu : " + e.getMessage());
         }
-        return null;
     }
 }
